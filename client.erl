@@ -7,25 +7,17 @@
 %%%% Connect
 %%%%%%%%%%%%%%%
 loop(St, {connect, _Server}) ->
-    
-    case (St#cl_st.server == undefined) of
-      true -> 
-	  
-	  Result = genserver:request(list_to_atom(_Server),{connect,self(),St#cl_st.nick}),
-	  io:format("~nResult: ~p~n", [Result]),
-	  
-	  case (Result) of
-	    {error,_,_} ->
-		NewSt = St#cl_st {server = undefined };
-	    _ ->
-		NewSt = St#cl_st { server = _Server }
-	  end;
-	  
-      false -> 
-	  Result = {error, user_already_connected, "You are already connected to a server."},
-	  NewSt = St
-      end,
-    {Result, NewSt} ;
+
+    Result = genserver:request(list_to_atom(_Server),{connect,self(),St#cl_st.nick}),
+	case {St#cl_st.server, Result} of
+    	{undefined, {error, _ ,_}} -> 
+	  		{Result, St#cl_st {server = undefined }};
+
+	  	{undefined, ok} ->
+	  		{Result, St#cl_st { server = _Server }};
+    	_ -> 
+	  		{{error, user_already_connected, "You are already connected to a server."}, St}
+      end;
 
 %%%%%%%%%%%%%%%
 %%%% Disconnect
