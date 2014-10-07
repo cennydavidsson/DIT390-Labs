@@ -93,4 +93,4 @@ loop(St = #cl_st { gui = GUIName }, {message, Channel, Name, Msg}) ->
 
 
 initial_state(Nick, GUIName) ->
-    #cl_st { gui = GUIName, nick = "User01" }.
+    #cl_st { gui = GUIName, nick = Nick }.
