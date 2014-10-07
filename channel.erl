@@ -3,6 +3,9 @@
 
 -include_lib("./defs.hrl").
 
+%%%%%%%%%%%%%%
+%%% Join
+%%%%%%%%%%%%%%
 loop(St, {join, Pid}) ->
     case (lists:member(Pid, St#channel_st.clients)) of
 		true -> 
@@ -11,7 +14,9 @@ loop(St, {join, Pid}) ->
 		    {ok, St#channel_st { clients = St#channel_st.clients ++ [Pid] } }
     end;
   
-
+%%%%%%%%%%%%%%%
+%%%% Leave
+%%%%%%%%%%%%%%%
 loop(St, {leave, Pid}) ->
     case (lists:member(Pid, St#channel_st.clients)) of
 		true ->
@@ -20,7 +25,9 @@ loop(St, {leave, Pid}) ->
 	   		{{error, user_not_joined, "You are not a member of this channel."}, St}
     end;
   
-  
+%%%%%%%%%%%%%%%%%%%%%
+%%%% Incoming message
+%%%%%%%%%%%%%%%%%%%%%
 loop(St, {message, Pid, Nick, Channel, Msg}) ->
     case (lists:member(Pid, St#channel_st.clients)) of
 		true ->
@@ -29,7 +36,6 @@ loop(St, {message, Pid, Nick, Channel, Msg}) ->
 		false ->
 	    	{{error, user_not_joined, "You are not a member of this channel"}, St}
     end.
-    
     
 sendMessage(Clients, Nick, Channel, Msg) ->
 	case Clients of
