@@ -7,8 +7,14 @@
 %%%% Connect
 %%%%%%%%%%%%%%%
 loop(St, {connect, _Server}) ->
-
-    Result = genserver:request(list_to_atom(_Server), {connect, self(), St#cl_st.nick}),
+	
+	case list_to_atom(_Server) of
+		server ->
+			Result = genserver:request(list_to_atom(_Server), {connect, self(), St#cl_st.nick});
+		_ ->
+			Result = {error, server_not_reached, ""}	
+	end,
+    
 
 	case {St#cl_st.server, Result} of
     	{undefined, {error, _ ,_}} -> 
