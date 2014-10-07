@@ -8,22 +8,13 @@
 %%%%%%%%%%%%%%%
 loop(St, {connect, _Server}) ->
 	
-	case list_to_atom(_Server) of
-		server ->
-			Result = genserver:request(list_to_atom(_Server), {connect, self(), St#cl_st.nick});
-		_ ->
-			Result = {error, server_not_reached, ""}	
-	end,
-    
-	case {St#cl_st.server, Result} of
-    	{undefined, {error, _ ,_}} -> 
-  		{Result, St#cl_st {server = undefined }};
-  	{undefined, ok} ->
-  		{Result, St#cl_st { server = _Server }};
-    	{_, {error, user_already_connected, _}} -> 
-  		{{error, user_already_connected, "You are already connected to a server."}, St};
-  	_ ->
-  		{{error, server_not_reached, "Server not reached"}, St}
+	case {St#cl_st.server, whereis(list_to_atom(_Server))} of
+    	{undefined, NewServer} when NewServer =/= undefined -> 
+  			{genserver:request(list_to_atom(_Server), {connect, self(), St#cl_st.nick}), St#cl_st {server = _Server }};
+  		{_, undefined} ->
+  			{{error, server_not_reached, "Server not reached"}, St};
+  		_ ->
+  			{genserver:request(list_to_atom(_Server), {connect, self(), St#cl_st.nick}), St#cl_st { server = undefined }}
       end;
 
 %%%%%%%%%%%%%%%
