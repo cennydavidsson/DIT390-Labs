@@ -99,8 +99,10 @@ loop(St, debug) ->
 %%%%%%%%%%%%%%%%%%%%%
 %%%% Incoming message
 %%%%%%%%%%%%%%%%%%%%%
-loop(St = #cl_st { gui = GUIName }, _MsgFromClient) ->
-   {Channel, Name, Msg} = decompose_msg(_MsgFromClient),
+%loop(St = #cl_st { gui = GUIName }, _MsgFromClient) ->
+%    {Channel, Name, Msg} = decompose_msg(_MsgFromClient),
+ 	loop(St = #cl_st {gui = GUIName}, _MsgFromClient) ->
+ 	{Channel, Nick, Msg} = decompose_msg(_MsgFromClient),
     gen_server:call(list_to_atom(GUIName), {msg_to_GUI, Channel, Nick++"> "++Msg}),
     {ok, St}.
 
@@ -109,7 +111,7 @@ loop(St = #cl_st { gui = GUIName }, _MsgFromClient) ->
 % decomposed in the parts needed to tell the GUI to display
 % it in the right chat room.
 decompose_msg(_MsgFromClient) ->
-    {message, Channel, Nick, Msg}.
+    _MsgFromClient.
 
 
 initial_state(Nick, GUIName) ->

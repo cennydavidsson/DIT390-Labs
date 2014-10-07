@@ -25,7 +25,7 @@ loop(St, {message, ClientPid, Nick, Channel, Msg}) ->
 		true ->
 			Others = lists:delete(ClientPid, St#channel_st.clients),
 			lists:foreach(fun(Pid) -> 
-				genserver:request(Pid, {message, Channel, Nick, Msg}) 
+				genserver:request(Pid, {Channel, Nick, Msg}) 
 			end, Others),
 			{ok, St};
 			
