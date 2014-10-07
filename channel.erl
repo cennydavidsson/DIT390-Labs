@@ -20,11 +20,13 @@ loop(St, {leave, Pid}) ->
 	    {{error, user_not_joined, "You are not a member of this channel."}, St }
     end;
   
-loop(St, {message, Pid, Nick, Channel, Msg}) ->
-	case (lists:member(Pid, St#channel_st.clients)) of
+loop(St, {message, ClientPid, Nick, Channel, Msg}) ->
+	case (lists:member(ClientPid, St#channel_st.clients)) of
 		true ->
-			Others = lists:delete(Pid, St#channel_st.clients),
-			{lists:foreach(fun() -> genserver:request(Pid, {message, Channel, Nick, Msg}) end, Others), St},
+			Others = lists:delete(ClientPid, St#channel_st.clients),
+			lists:foreach(fun(Pid) -> 
+				genserver:request(Pid, {message, Channel, Nick, Msg}) 
+			end, Others),
 			{ok, St};
 			
 		false ->
