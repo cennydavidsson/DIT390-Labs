@@ -13,7 +13,6 @@ loop(St, {connect, Pid, Nick}) ->
 	end;
 
 loop(St, {disconnect, Pid, Nick}) ->
-	io:format("~p", [St#server_st.clients]),
     case lists:keymember(Pid, 2, St#server_st.clients) of
      	false ->
 	  		{{error, user_not_connected, "User is not connected to the server."}, St};
