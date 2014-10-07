@@ -4,26 +4,22 @@
 -include_lib("./defs.hrl").
 
 loop(St, {connect, Pid, Nick}) ->
-    case {lists:keyfind(Nick, 1, St#server_st.clients)} of
-	{false} ->
-	    NewSt = St#server_st { clients = St#server_st.clients ++ [{Nick, Pid}] },
-	    Result = ok;
-	{_} ->
-	    Result = {error, user_already_connected, "User is already connected."},
-	    NewSt = St
-	end,
-    
-    {Result, NewSt};
+    case lists:member({Nick, Pid}, St#server_st.clients) of
+		false ->
+	    	{ok, St#server_st { clients = St#server_st.clients ++ [{Nick, Pid}] }};
+		_ ->
+	    	{{error, user_already_connected, "User is already connected."}, St}
+	end;
 
 loop(St, {disconnect, Pid, Nick}) ->
-    case {lists:keyfind(Pid, 2, St#server_st.clients)} of
-      {false} ->
-	  Result = {error, user_not_connected, "User is not connected to the server."},
-	  NewSt = St;
-      {_} ->
-	  NewSt = St#server_st {clients = lists:delete({Nick,Pid}, St#server_st.clients) },
-	  Result = ok
-      end,
+    case lists:member({Nick,Pid}, St#server_st.clients) of
+     	false ->
+	  		Result = {error, user_not_connected, "User is not connected to the server."},
+	  		NewSt = St;
+      	_ ->
+	  		NewSt = St#server_st {clients = lists:delete({Nick,Pid}, St#server_st.clients) },
+	  		Result = ok
+    end,
       
     {Result, NewSt};
 
