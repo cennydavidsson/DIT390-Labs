@@ -24,16 +24,13 @@ loop(St, {connect, _Server}) ->
 %%%%%%%%%%%%%%%
 loop(St, disconnect) ->
     %io:format("~n~p~n",[St#cl_st]),
-    case (St#cl_st.server =/= undefined) of
-	true ->
-	    case (length(St#cl_st.channels) > 0 ) of
-		true ->
-		    {{error, leave_channels_first, "You need to leave all channels first."}, St};
-		false ->
-		    {genserver:request(list_to_atom(St#cl_st.server), {disconnect,self(),St#cl_st.nick}), St#cl_st {server = undefined } }
-	    end;
-	false ->
-	    {{error, user_not_connected, "You are not connected to a server."}, St}
+    case {St#cl_st.server, (length(St#cl_st.channels) > 0 )} of
+    	{undefined, _}  -> 
+    		{{error, user_not_connected, "You are not connected to a server."}, St};
+    	{_, L} when L =< 0 -> 
+    		{{error, leave_channels_first, "You need to leave all channels first."}, St};
+    	{_, L} when L > 0 -> 
+    		{genserver:request(list_to_atom(St#cl_st.server), {disconnect,self(),St#cl_st.nick}), St#cl_st {server = undefined }}
     end;
 
 
