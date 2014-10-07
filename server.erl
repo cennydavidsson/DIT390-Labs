@@ -4,7 +4,8 @@
 -include_lib("./defs.hrl").
 
 loop(St, {connect, Pid, Nick}) ->
-    case lists:member({Nick, Pid}, St#server_st.clients) of
+
+    case lists:keymember(Nick, 1, St#server_st.clients) of
 		false ->
 	    	{ok, St#server_st { clients = St#server_st.clients ++ [{Nick, Pid}] }};
 		_ ->
@@ -12,16 +13,13 @@ loop(St, {connect, Pid, Nick}) ->
 	end;
 
 loop(St, {disconnect, Pid, Nick}) ->
-    case lists:member({Nick,Pid}, St#server_st.clients) of
+	io:format("~p", [St#server_st.clients]),
+    case lists:keymember(Pid, 2, St#server_st.clients) of
      	false ->
-	  		Result = {error, user_not_connected, "User is not connected to the server."},
-	  		NewSt = St;
+	  		{{error, user_not_connected, "User is not connected to the server."}, St};
       	_ ->
-	  		NewSt = St#server_st {clients = lists:delete({Nick,Pid}, St#server_st.clients) },
-	  		Result = ok
-    end,
-      
-    {Result, NewSt};
+	  		{ok, St#server_st {clients = lists:delete({Nick,Pid}, St#server_st.clients)}}
+    end;
 
 loop(St, {join, Pid, Channel}) ->
     case (lists:member(Channel, St#server_st.channels)) of

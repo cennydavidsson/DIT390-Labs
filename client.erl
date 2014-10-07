@@ -8,14 +8,17 @@
 %%%%%%%%%%%%%%%
 loop(St, {connect, _Server}) ->
 
-    Result = genserver:request(list_to_atom(_Server),{connect,self(),St#cl_st.nick}),
+    Result = genserver:request(list_to_atom(_Server), {connect, self(), St#cl_st.nick}),
+
 	case {St#cl_st.server, Result} of
     	{undefined, {error, _ ,_}} -> 
 	  		{Result, St#cl_st {server = undefined }};
 	  	{undefined, ok} ->
 	  		{Result, St#cl_st { server = _Server }};
-    	_ -> 
-	  		{{error, user_already_connected, "You are already connected to a server."}, St}
+    	{_, {error, user_already_connected, _}} -> 
+	  		{{error, user_already_connected, "You are already connected to a server."}, St};
+	  	_ ->
+	  		{{error, server_not_reached, "Server not reached"}, St}
       end;
 
 %%%%%%%%%%%%%%%
@@ -23,12 +26,12 @@ loop(St, {connect, _Server}) ->
 %%%%%%%%%%%%%%%
 loop(St, disconnect) ->
     %io:format("~n~p~n",[St#cl_st]),
-    case {St#cl_st.server, (length(St#cl_st.channels) > 0 )} of
+    case {St#cl_st.server, (length(St#cl_st.channels))} of
     	{undefined, _}  -> 
     		{{error, user_not_connected, "You are not connected to a server."}, St};
-    	{_, L} when L =< 0 -> 
-    		{{error, leave_channels_first, "You need to leave all channels first."}, St};
     	{_, L} when L > 0 -> 
+    		{{error, leave_channels_first, "You need to leave all channels first."}, St};
+    	{_, _} -> 
     		{genserver:request(list_to_atom(St#cl_st.server), {disconnect,self(),St#cl_st.nick}), St#cl_st {server = undefined }}
     end;
 
