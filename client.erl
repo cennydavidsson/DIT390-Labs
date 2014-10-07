@@ -15,23 +15,21 @@ loop(St, {connect, _Server}) ->
 			Result = {error, server_not_reached, ""}	
 	end,
     
-
 	case {St#cl_st.server, Result} of
     	{undefined, {error, _ ,_}} -> 
-	  		{Result, St#cl_st {server = undefined }};
-	  	{undefined, ok} ->
-	  		{Result, St#cl_st { server = _Server }};
+  		{Result, St#cl_st {server = undefined }};
+  	{undefined, ok} ->
+  		{Result, St#cl_st { server = _Server }};
     	{_, {error, user_already_connected, _}} -> 
-	  		{{error, user_already_connected, "You are already connected to a server."}, St};
-	  	_ ->
-	  		{{error, server_not_reached, "Server not reached"}, St}
+  		{{error, user_already_connected, "You are already connected to a server."}, St};
+  	_ ->
+  		{{error, server_not_reached, "Server not reached"}, St}
       end;
 
 %%%%%%%%%%%%%%%
 %%%% Disconnect
 %%%%%%%%%%%%%%%
 loop(St, disconnect) ->
-    %io:format("~n~p~n",[St#cl_st]),
     case {St#cl_st.server, (length(St#cl_st.channels))} of
     	{undefined, _}  -> 
     		{{error, user_not_connected, "You are not connected to a server."}, St};
@@ -65,7 +63,6 @@ loop(St, {leave, _Channel}) ->
 	false ->
 	    {{error, user_not_joined, "You are not a member of this channel."}, St }
     end;
-
 
 
 %%%%%%%%%%%%%%%%%%%%%

@@ -24,18 +24,11 @@ loop(St, {leave, Pid}) ->
 loop(St, {message, Pid, Nick, Channel, Msg}) ->
     case (lists:member(Pid, St#channel_st.clients)) of
 	true ->
-	    Others = lists:delete(Pid, St#channel_st.clients),
-	    spawn(fun() -> sendMessage(Others, Nick, Channel, Msg) end), 
+	    spawn(fun() -> sendMessage(lists:delete(Pid, St#channel_st.clients), Nick, Channel, Msg) end), 
 	    {ok, St};
-	    %spawn(?MODULE,fun(ClientPID) -> genserver:request(ClientPID, {message, Channel, Nick, Msg}) end,lists:delete(Pid, St#channel_st.clients)),
-	    %Result = lists:foreach(fun(ClientPID) -> spawn (genserver:request(ClientPID, {message, Channel, Nick, Msg})) end, lists:delete(Pid, St#channel_st.clients)),
-	    %{Result, St};
 	false ->
 	    {{error, user_not_joined, "You are not a member of this channel"}, St}
-    end;
-
-loop(St, _Msg) -> 
-      {ok, St}.
+    end.
     
     
 sendMessage([Receiver|Restclients], Nick, Channel, Msg) ->
