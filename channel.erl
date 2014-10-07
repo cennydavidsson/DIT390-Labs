@@ -35,7 +35,7 @@ loop(St, {message, Pid, Nick, Channel, Msg}) ->
 	    	{ok, St};
 		false ->
 	    	{{error, user_not_joined, "You are not a member of this channel"}, St}
-    end.
+    end.	
     
 sendMessage(Clients, Nick, Channel, Msg) ->
 	case Clients of

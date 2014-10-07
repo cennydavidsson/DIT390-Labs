@@ -7,7 +7,6 @@
 %%%% Connect
 %%%%%%%%%%%%%%%
 loop(St, {connect, _Server}) ->
-	
 	case {St#cl_st.server, whereis(list_to_atom(_Server))} of
     	{undefined, NewServer} when NewServer =/= undefined -> 
   			{genserver:request(list_to_atom(_Server), {connect, self(), St#cl_st.nick}), St#cl_st {server = _Server }};
@@ -30,7 +29,6 @@ loop(St, disconnect) ->
     		{genserver:request(list_to_atom(St#cl_st.server), {disconnect,self(),St#cl_st.nick}), St#cl_st {server = undefined }}
     end;
 
-
 %%%%%%%%%%%%%%
 %%% Join
 %%%%%%%%%%%%%%
@@ -41,7 +39,6 @@ loop(St,{join,_Channel}) ->
 		false ->
 	    	{genserver:request(list_to_atom(St#cl_st.server), {join,self(),_Channel}), St#cl_st {channels = St#cl_st.channels ++ [_Channel] } }
     end;
-    
     
 
 %%%%%%%%%%%%%%%
@@ -54,7 +51,6 @@ loop(St, {leave, _Channel}) ->
 		false ->
 	  		{{error, user_not_joined, "You are not a member of this channel."}, St }
     end;
-
 
 %%%%%%%%%%%%%%%%%%%%%
 %%% Sending messages
@@ -87,7 +83,6 @@ loop(St, debug) ->
 loop(St = #cl_st { gui = GUIName }, {message, Channel, Name, Msg}) ->
     gen_server:call(list_to_atom(GUIName), {msg_to_GUI, Channel, Name++"> "++Msg}),
     {ok, St}.
-
 
 initial_state(Nick, GUIName) ->
     #cl_st { gui = GUIName, nick = Nick }.
