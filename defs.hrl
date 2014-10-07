@@ -12,6 +12,7 @@
 % 
 -record(server_st, {name,clients=[],channels=[]}).
 
-
-
+% This record defines the structure of the 
+% channel process. 
+% 
 -record(channel_st, {name,clients=[]}).
