@@ -87,12 +87,10 @@ loop(St, debug) ->
 %%%%%%%%%%%%%%%%%%%%%
 %%%% Incoming message
 %%%%%%%%%%%%%%%%%%%%%
-%loop(St = #cl_st { gui = GUIName }, _MsgFromClient) ->
-%    {Channel, Name, Msg} = decompose_msg(_MsgFromClient),
-loop(St = #cl_st {gui = GUIName}, _MsgFromClient) ->
- 	{Channel, Nick, Msg} = _MsgFromClient,
-    gen_server:call(list_to_atom(GUIName), {msg_to_GUI, Channel, Nick++"> "++Msg}),
+loop(St = #cl_st { gui = GUIName }, {message, Channel, Name, Msg}) ->
+    gen_server:call(list_to_atom(GUIName), {msg_to_GUI, Channel, Name++"> "++Msg}),
     {ok, St}.
+
 
 initial_state(Nick, GUIName) ->
     #cl_st { gui = GUIName, nick = "User01" }.
