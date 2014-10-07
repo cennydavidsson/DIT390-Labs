@@ -15,9 +15,9 @@ loop(St, {join, Pid}) ->
 loop(St, {leave, Pid}) ->
     case (lists:member(Pid, St#channel_st.clients)) of
 		true ->
-	   		{ok, St#channel_st { clients = lists:delete(Pid, St#channel_st.clients)} };
+	   		{ok, St#channel_st { clients = lists:delete(Pid, St#channel_st.clients)}};
 		false ->
-	   		{{error, user_not_joined, "You are not a member of this channel."}, St }
+	   		{{error, user_not_joined, "You are not a member of this channel."}, St}
     end;
   
   
@@ -31,13 +31,14 @@ loop(St, {message, Pid, Nick, Channel, Msg}) ->
     end.
     
     
-sendMessage([Receiver|Restclients], Nick, Channel, Msg) ->
-    spawn( fun() -> genserver:request(Receiver, {message, Channel, Nick, Msg}) end ),
-    sendMessage(Restclients, Nick, Channel, Msg);
+sendMessage(Clients, Nick, Channel, Msg) ->
+	case Clients of
+		[Client| Rest] ->
+			spawn( fun() -> genserver:request(Client, {message, Channel, Nick, Msg}) end),
+    		sendMessage(Rest, Nick, Channel, Msg);
+    	[] ->
+    		done
+	end.
     
-sendMessage([], Nick, Channel, Msg) ->
-    do_nothing.
-
-
 initial_state(_Name) ->
     #channel_st{ name = _Name}.
