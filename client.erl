@@ -45,10 +45,10 @@ loop(St, disconnect) ->
 %%%%%%%%%%%%%%
 loop(St,{join,_Channel}) ->
     case (lists:member(_Channel, St#cl_st.channels)) of
-	true ->
-	    {{error, user_already_joined, "You are already a member of this channel."},St};
-	false ->
-	    {genserver:request(list_to_atom(St#cl_st.server), {join,self(),_Channel}), St#cl_st {channels = St#cl_st.channels ++ [_Channel] } }
+		true ->
+	    	{{error, user_already_joined, "You are already a member of this channel."},St};
+		false ->
+	    	{genserver:request(list_to_atom(St#cl_st.server), {join,self(),_Channel}), St#cl_st {channels = St#cl_st.channels ++ [_Channel] } }
     end;
     
     
@@ -58,10 +58,10 @@ loop(St,{join,_Channel}) ->
 %%%%%%%%%%%%%%%
 loop(St, {leave, _Channel}) ->
     case (lists:member(_Channel, St#cl_st.channels)) of
-	true ->
-	    {genserver:request(list_to_atom(_Channel), {leave, self()}), St#cl_st { channels = lists:delete(_Channel, St#cl_st.channels) } };
-	false ->
-	    {{error, user_not_joined, "You are not a member of this channel."}, St }
+		true ->
+	   		{genserver:request(list_to_atom(_Channel), {leave, self()}), St#cl_st { channels = lists:delete(_Channel, St#cl_st.channels) } };
+		false ->
+	  		{{error, user_not_joined, "You are not a member of this channel."}, St }
     end;
 
 

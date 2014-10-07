@@ -37,8 +37,7 @@ sendMessage([Receiver|Restclients], Nick, Channel, Msg) ->
     
 sendMessage([], Nick, Channel, Msg) ->
     do_nothing.
-
-
+    
 
 initial_state(_Name) ->
     #channel_st{ name = _Name}.
