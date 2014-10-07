@@ -27,9 +27,7 @@ loop(St, {join, Pid, Channel}) ->
 	    {genserver:request(list_to_atom(Channel), {join, Pid}), St };
 	false ->
 	    genserver:start(list_to_atom(Channel), channel:initial_state(Channel), fun channel:loop/2),
-	    Result = genserver:request(list_to_atom(Channel), {join, Pid}),
-	    NewSt = St#server_st { channels = St#server_st.channels ++ [Channel] },
-	    {Result, NewSt}
+	    {genserver:request(list_to_atom(Channel), {join, Pid}), St#server_st { channels = St#server_st.channels ++ [Channel] }}
     end;
     
     
