@@ -12,7 +12,6 @@ loop(St, {connect, _Server}) ->
 	case {St#cl_st.server, Result} of
     	{undefined, {error, _ ,_}} -> 
 	  		{Result, St#cl_st {server = undefined }};
-
 	  	{undefined, ok} ->
 	  		{Result, St#cl_st { server = _Server }};
     	_ -> 
@@ -90,18 +89,10 @@ loop(St, debug) ->
 %%%%%%%%%%%%%%%%%%%%%
 %loop(St = #cl_st { gui = GUIName }, _MsgFromClient) ->
 %    {Channel, Name, Msg} = decompose_msg(_MsgFromClient),
- 	loop(St = #cl_st {gui = GUIName}, _MsgFromClient) ->
- 	{Channel, Nick, Msg} = decompose_msg(_MsgFromClient),
+loop(St = #cl_st {gui = GUIName}, _MsgFromClient) ->
+ 	{Channel, Nick, Msg} = _MsgFromClient,
     gen_server:call(list_to_atom(GUIName), {msg_to_GUI, Channel, Nick++"> "++Msg}),
     {ok, St}.
-
-
-% This function will take a message from the client and
-% decomposed in the parts needed to tell the GUI to display
-% it in the right chat room.
-decompose_msg(_MsgFromClient) ->
-    _MsgFromClient.
-
 
 initial_state(Nick, GUIName) ->
     #cl_st { gui = GUIName, nick = "User01" }.
