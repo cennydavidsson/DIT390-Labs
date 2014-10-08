@@ -1,0 +1,12 @@
+The monitor have an interface of three methods and works simerly to a binary semaphore. The methods are described below.
+
+enter()
+  This method locks the track.
+
+tryEnter()
+  This methods checks if the track is loked, if not locked it locks it. It also returns an boolean if the lock was successful.
+
+leave()
+  This method unlocks the monitor.
+
+The monitor only uses one condition variable as we are only interested if the track is occupied, to keep track if the track is occupied we use a boolean value, and call signal or wait depending on this variable. 
