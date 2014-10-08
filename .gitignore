@@ -8,4 +8,10 @@ erl_crash.dump
 =======
 .DS_Store
 cchat.beam
+<<<<<<< HEAD
 >>>>>>> Added lab 1 & 2
+=======
+client.beam
+test_remote.beam
+.beam
+>>>>>>> i
