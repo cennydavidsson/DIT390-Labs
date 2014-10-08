@@ -39,6 +39,7 @@ class TrainThread implements Runnable {
     int id, speed, speedparameter;
     Semaphore semTrack1, semTrack3, semCrossing, semMiddleHigh, semSensor6, semSensor9;
     TSimInterface tsi = TSimInterface.getInstance();
+    Boolean defaultTrack = true;
     
     TrainThread(int trainID, int startspeed, ArrayList<Semaphore> semList, int speedparameter) throws InterruptedException {
         id                  = trainID;
@@ -84,9 +85,7 @@ class TrainThread implements Runnable {
                             
                         case 2:
                             if (goingDown(id)) {
-                                if (semCrossing.availablePermits() == 1) {
-                                    semCrossing.acquire();
-                                } else {
+                                if (!semCrossing.tryAcquire()) {
                                     getSemCrossing(id, speed);
                                 }
                             }
@@ -102,9 +101,7 @@ class TrainThread implements Runnable {
                             }
                             
                             if (goingDown(id)) {
-                                if (semCrossing.availablePermits() == 1) {
-                                    semCrossing.acquire();
-                                } else {
+                                if (!semCrossing.tryAcquire()) {
                                     getSemCrossing(id, speed);
                                 }
                             }
@@ -118,9 +115,7 @@ class TrainThread implements Runnable {
                             }
                             if (goingUp(id)) {
                                 semSensor6.release();
-                                if (semCrossing.availablePermits() == 1) {
-                                    semCrossing.acquire();
-                                } else {
+                                if (!semCrossing.tryAcquire()) {
                                     getSemCrossing(id, speed);
                                 }
                             }
@@ -128,10 +123,10 @@ class TrainThread implements Runnable {
                             
                         case 6:
                             if (goingDown(id)) {
-                                tryReleaseAndAcuireSemsAtSwitch(semTrack1, semMiddleHigh, 3);                                
+                               tryReleaseAndAcquireSemsAtSwitch(semTrack1, semMiddleHigh, 3);                                
                             }
                             if (goingUp(id)) {
-                               tryReleaseAndAcuireSemsAtSwitch(semMiddleHigh, semTrack1, 1);                                 
+                               tryReleaseAndAcquireSemsAtSwitch(semMiddleHigh, semTrack1, 1);                                 
                             }
                             break;
                             
@@ -157,10 +152,10 @@ class TrainThread implements Runnable {
                             
                         case 9:
                             if (goingUp(id)) {
-                                tryReleaseAndAcuireSemsAtSwitch(semTrack3, semMiddleHigh, 2);
+                                tryReleaseAndAcquireSemsAtSwitch(semTrack3, semMiddleHigh, 2);
                             }
                             if (goingDown(id)) {
-                                tryReleaseAndAcuireSemsAtSwitch(semMiddleHigh, semTrack3, 4);
+                                tryReleaseAndAcquireSemsAtSwitch(semMiddleHigh, semTrack3, 4);
                             }
                             break;
                             
@@ -175,7 +170,9 @@ class TrainThread implements Runnable {
                             break;
                             
                         case 13: case 15:
-                            if (goingDown(id)) changeDirection(id);
+                            if (goingDown(id)) {
+                                changeDirection(id);
+                            }
                             break;
      
                         default: break;
@@ -252,28 +249,33 @@ class TrainThread implements Runnable {
     }
     
     private void getSemCrossing(int id, int speed) throws CommandException {
+        Boolean canAcquire = false;
         tsi.setSpeed(id,0);
-        semCrossing.acquireUninterruptibly();
+        while (!canAcquire) {
+            canAcquire = semCrossing.tryAcquire();
+        }        
         tsi.setSpeed(id,speed);
     }
 
     private void acquireSemWithWait(Semaphore sem) throws CommandException, InterruptedException {
-        if (sem.availablePermits() == 1) {
-            sem.acquire();
-        } else {
+        Boolean canAcquire = false;
+        if (!sem.tryAcquire()) {
             tsi.setSpeed(id, 0);
-            sem.acquireUninterruptibly();
+            while (!canAcquire) {
+                canAcquire = sem.tryAcquire();
+            }
             tsi.setSpeed(id, speed);
         }
     }
 
-    private void tryReleaseAndAcuireSemsAtSwitch(Semaphore releseSem, Semaphore acuireSem, int railsSwitch) throws CommandException, InterruptedException {
-        if (releseSem.availablePermits() == 0) {
-            releseSem.release(); 
+    private void tryReleaseAndAcquireSemsAtSwitch(Semaphore releaseSem, Semaphore acquireSem, int railsSwitch) throws CommandException, InterruptedException {
+        if (defaultTrack) {
+            releaseSem.release();
+            defaultTrack = false;
         }
-        if (acuireSem.availablePermits() == 1) {
-            acuireSem.acquire();
+        if (acquireSem.tryAcquire()) {
             setSwitch(railsSwitch, Direction.up);
+            defaultTrack = true;            
         } else {
             setSwitch(railsSwitch, Direction.down);
         }
