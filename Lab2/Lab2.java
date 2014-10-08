@@ -289,43 +289,43 @@ class TrainThread implements Runnable {
 }
 
 class Monitor {
-    	final Lock lock            = new ReentrantLock();
-  		final Condition cond       = lock.newCondition(); 
-   		private Boolean isOnTrack  = false;
+        final Lock lock            = new ReentrantLock();
+        final Condition cond       = lock.newCondition(); 
+        private Boolean isOnTrack  = false;
 
-    	public void enter() throws InterruptedException {
-    		lock.lock();
-    		try {
-    			while (isOnTrack) {
-    				cond.await();
-    			}
-    			isOnTrack = true;
-    		} finally {
-    			lock.unlock();
-    		}
-    	}
+        public void enter() throws InterruptedException {
+            lock.lock();
+            try {
+                while (isOnTrack) {
+                    cond.await();
+                }
+                isOnTrack = true;
+            } finally {
+                lock.unlock();
+            }
+        }
 
-    	public Boolean tryEnter() throws InterruptedException {
-    		lock.lock();
-    		try {
-    			if (isOnTrack) {
-    				return false;
-    			} else {
-    				isOnTrack = true;
-    				return isOnTrack;
-    			}
-    		} finally {
-    			lock.unlock();
-    		}
-    	}
+        public Boolean tryEnter() throws InterruptedException {
+            lock.lock();
+            try {
+                if (isOnTrack) {
+                    return false;
+                } else {
+                    isOnTrack = true;
+                    return isOnTrack;
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
 
-		public void leave() throws InterruptedException {
-			lock.lock();
-			try {
-            	isOnTrack = false;
-            	cond.signal();
-        	} finally {
-            	lock.unlock();
-        	}
-		}
+        public void leave() throws InterruptedException {
+            lock.lock();
+            try {
+                isOnTrack = false;
+                cond.signal();
+            } finally {
+                lock.unlock();
+            }
+        }
     }
