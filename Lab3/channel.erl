@@ -38,6 +38,10 @@ loop(St, {message, Pid, Nick, Channel, Msg}) ->
     end.    
     
 sendMessage(Clients, Nick, Channel, Msg) ->
+    % Cant get this to work
+    % lists:foreach(spawn(fun(Client) -> genserver:request(Client, {message, Channel, Nick, Msg}) end), Clients).
+
+    % This works fine.
     case Clients of
         [Client| Rest] ->
             spawn( fun() -> genserver:request(Client, {message, Channel, Nick, Msg}) end),
