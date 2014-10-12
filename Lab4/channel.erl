@@ -30,7 +30,6 @@ loop(St, {leave, Pid}) ->
 %%%%%%%%%%%%%%%%%%%%%
 loop(St, {message, Pid, Nick, Channel, Msg}) ->
     io:format("~n~p~n",[Pid]),
-    io:format(""),
     case (lists:member(Pid, St#channel_st.clients)) of
         true ->
             spawn(fun() -> sendMessage(lists:delete(Pid, St#channel_st.clients), Nick, Channel, Msg) end), 
@@ -43,6 +42,10 @@ loop(St, _Msg) ->
     {ok, St}.    
 
 sendMessage(Clients, Nick, Channel, Msg) ->
+    % Cant get this to work
+    % lists:foreach(spawn(fun(Client) -> genserver:request(Client, {message, Channel, Nick, Msg}) end), Clients).
+
+    % This works fine.
     case Clients of
         [Client| Rest] ->
             spawn( fun() -> genserver:request(Client, {message, Channel, Nick, Msg}) end),
