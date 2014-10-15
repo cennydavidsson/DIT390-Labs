@@ -29,7 +29,8 @@ loop(St, {leave, Pid}) ->
 %%%% Incoming message
 %%%%%%%%%%%%%%%%%%%%%
 loop(St, {message, Pid, Nick, Channel, Msg}) ->
-    io:format("~n~p~n",[Pid]),
+    % Printing a string here increases the chances of passing the distributed tests
+    io:format("~n~p -> (~p:) ~p~n",[Channel, Nick, Msg]),
     case (lists:member(Pid, St#channel_st.clients)) of
         true ->
             spawn(fun() -> sendMessage(lists:delete(Pid, St#channel_st.clients), Nick, Channel, Msg) end), 
